@@ -1,3 +1,8 @@
+> ⚠️ **Notice:**  
+> The current session implementation uses a **memory-based store**, which **is not suitable for production**.  
+> Please use it **locally for now**.  
+> A **Redis-based session solution** is coming soon for production-ready usage.
+
 # S3 Browser
 
 A simple web-based file explorer for AWS S3 buckets built with Bun, Express, TypeScript, and TailwindCSS.
