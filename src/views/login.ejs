@@ -1,0 +1,43 @@
+<div class="flex items-center justify-center h-screen bg-gray-900 text-white">
+  <form
+    action="/login"
+    method="POST"
+    class="bg-gray-800 p-6 rounded-xl shadow-lg w-96 space-y-4"
+    autocomplete="off"
+  >
+    <h1 class="text-xl font-bold text-center">Connect to AWS S3</h1>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input
+      name="AWS_ACCESS_KEY_ID"
+      placeholder="Access Key ID"
+      class="w-full p-2 rounded bg-gray-700"
+      required
+    />
+    <input
+      name="AWS_SECRET_ACCESS_KEY"
+      type="password"
+      placeholder="Secret Access Key"
+      class="w-full p-2 rounded bg-gray-700"
+      required
+    />
+    <input
+      name="BUCKET_NAME"
+      placeholder="Bucket Name"
+      class="w-full p-2 rounded bg-gray-700"
+      required
+    />
+    <input
+      name="AWS_REGION"
+      placeholder="Region Name"
+      value="us-east-1"
+      class="w-full p-2 rounded bg-gray-700"
+      required
+    />
+    <button
+      type="submit"
+      class="w-full bg-blue-500 cursor-pointer hover:bg-blue-600 p-2 rounded"
+    >
+      Connect
+    </button>
+  </form>
+</div>
