@@ -13,7 +13,7 @@ router.get("/", ((req: ModRequest, res: Response) => {
       title: "S3 Browser",
       csrfToken: req.csrfToken(),
     });
-  res.redirect("/browser");
+  res.redirect("/explorer");
 }) as any);
 
 router.post("/login", (async (req: ModRequest, res: Response) => {
