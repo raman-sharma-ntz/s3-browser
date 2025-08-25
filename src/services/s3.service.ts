@@ -3,6 +3,7 @@ import { ListObjectsV2Command, GetObjectCommand, S3 } from "@aws-sdk/client-s3";
 
 import { createS3Client } from "../helpers/s3.client";
 import type { s3Config } from "../schemas/aws.schema";
+import { Readable } from "stream";
 
 export class S3Service {
   static listObjects = async (config: s3Config, prefix: string = "") => {
@@ -104,11 +105,24 @@ export class S3Service {
     return Contents;
   };
 
-  static getFileStream = async (awsConfig: s3Config, Key: string) => {
+  static getFileStream = async (
+    awsConfig: s3Config,
+    Key: string
+  ): Promise<Readable> => {
     const s3 = createS3Client(awsConfig);
-    return s3.getObject({ Bucket: awsConfig.BUCKET_NAME, Key }).then((data) => {
-      if (!data.Body) throw new Error("No file body");
-      return data.Body as NodeJS.ReadableStream;
+
+    const command = new GetObjectCommand({
+      Bucket: awsConfig.BUCKET_NAME,
+      Key,
     });
+
+    const data = await s3.send(command);
+
+    if (!data.Body) {
+      throw new Error("No file body");
+    }
+
+    // At this point Body is already a Readable
+    return data.Body as Readable;
   };
 }

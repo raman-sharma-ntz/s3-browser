@@ -108,6 +108,7 @@ export class S3Controller {
       for (const item of Contents) {
         if (!item.Key) continue;
 
+        // ⬅️ Fix: await here
         const stream = await S3Service.getFileStream(
           req.session.awsConfig,
           item.Key
