@@ -1,5 +1,5 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, GetObjectCommand, S3 } from "@aws-sdk/client-s3";
 
 import { createS3Client } from "../helpers/s3.client";
 import type { s3Config } from "../schemas/aws.schema";
@@ -102,5 +102,13 @@ export class S3Service {
     s3.destroy();
 
     return Contents;
+  };
+
+  static getFileStream = async (awsConfig: s3Config, Key: string) => {
+    const s3 = createS3Client(awsConfig);
+    return s3.getObject({ Bucket: awsConfig.BUCKET_NAME, Key }).then((data) => {
+      if (!data.Body) throw new Error("No file body");
+      return data.Body as NodeJS.ReadableStream;
+    });
   };
 }

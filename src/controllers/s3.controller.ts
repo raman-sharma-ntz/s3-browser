@@ -3,6 +3,7 @@ import type { ModRequest } from "../types";
 import archiver from "archiver";
 
 import { S3Service } from "../services/s3.service";
+import { Readable } from "stream";
 
 export class S3Controller {
   static listObjects = async (req: ModRequest, res: Response) => {
@@ -76,7 +77,11 @@ export class S3Controller {
         }
       }
 
-      await archive.finalize();
+      archive.finalize();
+
+      archive.on("error", (err) => {
+        throw err;
+      });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -103,18 +108,39 @@ export class S3Controller {
       for (const item of Contents) {
         if (!item.Key) continue;
 
-        const file = await S3Service.getFile(req.session.awsConfig, item.Key);
-        if (file) {
-          const relativePath = item.Key.replace(new RegExp(`^${prefix}/?`), "");
-          if (relativePath) {
-            archive.append(file.Body as any, { name: relativePath });
-          }
+        const stream = await S3Service.getFileStream(
+          req.session.awsConfig,
+          item.Key
+        );
+
+        let nodeStream: Readable;
+        if (stream instanceof Readable) {
+          nodeStream = stream;
+        } else if (stream && typeof (stream as any).getReader === "function") {
+          nodeStream = Readable.fromWeb(stream as any);
+        } else {
+          throw new Error("Unsupported stream type received from S3Service");
+        }
+
+        const relativePath = item.Key.replace(new RegExp(`^${prefix}/?`), "");
+        if (relativePath) {
+          archive.append(nodeStream, { name: relativePath });
         }
       }
 
-      await archive.finalize();
+      archive.finalize();
+
+      archive.on("error", (err) => {
+        console.error("Archiver error:", err);
+        if (!res.headersSent) res.status(500).end("Error creating archive");
+      });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error("Download error:", err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.end();
+      }
     }
   };
 }

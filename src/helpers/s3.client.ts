@@ -1,8 +1,8 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3 } from "@aws-sdk/client-s3";
 import { s3Config } from "../schemas/aws.schema";
 
 export const createS3Client = (config: s3Config) => {
-  return new S3Client({
+  return new S3({
     region: config.AWS_REGION,
     credentials: {
       accessKeyId: config.AWS_ACCESS_KEY_ID,
